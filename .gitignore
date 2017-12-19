@@ -1,6 +1,9 @@
 # silly macOS
 .DS_Store
 
+# sim
+term2_sim_mac
+
 # build files
 build/
 
