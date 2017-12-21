@@ -1,4 +1,9 @@
 #include "kalman_filter.h"
+#include <math.h>
+#include <iostream>
+#include "tools.h"
+
+using std::fmod;
 
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
@@ -18,25 +23,56 @@ void KalmanFilter::Init(VectorXd &x_in, MatrixXd &P_in, MatrixXd &F_in,
   H_ = H_in;
   R_ = R_in;
   Q_ = Q_in;
+
 }
 
 void KalmanFilter::Predict() {
-  /**
-  TODO:
-    * predict the state
-  */
+  x_ = F_ * x_;                    // predict state
+  MatrixXd Ft = F_.transpose();
+  P_ = F_ * P_ * Ft + Q_;
 }
 
 void KalmanFilter::Update(const VectorXd &z) {
-  /**
-  TODO:
-    * update the state by using Kalman Filter equations
-  */
+
+  VectorXd z_pred = H_ * x_; // update the state by using Kalman Filter equations
+  VectorXd y = z - z_pred;
+
+    Filter(y);
 }
 
+
 void KalmanFilter::UpdateEKF(const VectorXd &z) {
-  /**
-  TODO:
-    * update the state by using Extended Kalman Filter equations
-  */
+    // update the state by using Extended Kalman Filter equations
+    VectorXd h = VectorXd(3); // h(x_), essentially
+
+    double rho = sqrt(x_(0) * x_(0) + x_(1) * x_(1));
+    double theta = atan2(x_(1), x_(0));
+    double rho_dot = (x_(0) * x_(2) + x_(1) * x_(3)) / rho;
+    h << rho, theta, rho_dot;
+
+    VectorXd y = z - h;
+    y(1) = tools.ConstrainAngle(y(1)); // map all angles into range -pi to pi,
+                                       // thanks to Mateusz Gryt's post on #Slack for this!
+    Filter(y);
+
 }
+
+
+void KalmanFilter::Filter(const VectorXd &y){
+
+    MatrixXd Ht = H_.transpose();
+    MatrixXd S = H_ * P_ * Ht + R_;
+    MatrixXd Si = S.inverse();
+    MatrixXd K =  P_ * Ht * Si;
+    // New state
+    x_ = x_ + (K * y);
+    int x_size = x_.size();
+    MatrixXd I = MatrixXd::Identity(x_size, x_size);
+    P_ = (I - K * H_) * P_;
+
+}
+
+
+
+
+

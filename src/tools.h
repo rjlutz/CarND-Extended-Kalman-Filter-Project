@@ -29,6 +29,8 @@ public:
   */
   MatrixXd CalculateJacobian(const VectorXd& x_state);
 
+    double ConstrainAngle(double x);
+
 };
 
 #endif /* TOOLS_H_ */
