@@ -31,6 +31,7 @@ public:
     MatrixXd CalculateJacobian(const VectorXd &x_state);
 
     double ConstrainAngle(double x);
+    bool verbose = false;
 
 };
 

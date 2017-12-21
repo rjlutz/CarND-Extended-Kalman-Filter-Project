@@ -69,6 +69,8 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
     /*****************************************************************************
      *  Initialization
      ****************************************************************************/
+
+
     if (!is_initialized_) {
         /**
         TODO:
@@ -159,7 +161,7 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
         ekf_.H_ = Hj_;
         ekf_.R_ = R_radar_;
         ekf_.UpdateEKF(measurement_pack.raw_measurements_);
-        cout << "R";
+        if (tools.verbose) cout << "R";
 
     } else {
 
@@ -167,24 +169,27 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
         ekf_.H_ = H_laser_;
         ekf_.R_ = R_laser_;
         ekf_.Update(measurement_pack.raw_measurements_);
-        cout << "L";
+        if (tools.verbose) cout << "L";
 
     }
-    cout << fixed << setfill(' ') << setw(7) << step;
-    cout << endl;
-    cout << "  x_ ";
-    for (int i = 0; i < ekf_.x_.size(); i++) {
-        cout << fixed << setfill(' ') << setw(7) << setprecision(2) << ekf_.x_(i);
-        if (i <= ekf_.x_.size()) cout << " ";
-    }
-    cout << endl;
 
-    cout << "  P_ ";
-    for (int i = 0; i < ekf_.P_.size(); i++) {
-        if (i > 0 && (i % 4) == 0) cout << endl << "     ";
-        cout << fixed << setfill(' ') << setw(7) << setprecision(2) << ekf_.P_(i);
-        if (i <= ekf_.P_.size()) cout << " ";
-    }
-    cout << endl << endl;
+    if (tools.verbose) {
+        cout << fixed << setfill(' ') << setw(7) << step;
+        cout << endl;
+        cout << "  x_ ";
+        for (int i = 0; i < ekf_.x_.size(); i++) {
+            cout << fixed << setfill(' ') << setw(7) << setprecision(2) << ekf_.x_(i);
+            if (i <= ekf_.x_.size()) cout << " ";
+        }
+        cout << endl;
+
+        cout << "  P_ ";
+        for (int i = 0; i < ekf_.P_.size(); i++) {
+            if (i > 0 && (i % 4) == 0) cout << endl << "     ";
+            cout << fixed << setfill(' ') << setw(7) << setprecision(2) << ekf_.P_(i);
+            if (i <= ekf_.P_.size()) cout << " ";
+        }
+        cout << endl << endl;
+}
 
 }
